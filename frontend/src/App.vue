@@ -11,7 +11,7 @@ const editMode = ref(false);
 const editId = ref(null);
 
 //membres et propriété
-const membres = ref("[]");
+const membres = ref([]);
 const Stats = ref({
   total_membres: 0,
   cotisations_payees: 0,
