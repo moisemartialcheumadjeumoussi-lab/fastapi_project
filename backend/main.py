@@ -98,10 +98,10 @@ def obtenir_stats():
         "cotisations_payees": sum(1 for m in membres_db if m.cotisation_payee),
         "cotisations_impayees": sum(1 for m in membres_db if not m.cotisation_payee)
     }
-membre1 = Membre("Martial","Moise","martialmoise99@gmail.com","078621891",True)
-nouveau1 = creer_membre(membre1)
+
 
 """
+element necessaire : implémenter une nouvelle bd et la rendre autonome et par la suite mettre les dossiers  dans le même reperrtory
 
 
 from fastapi import FastAPI, HTTPException
