@@ -1,70 +1,47 @@
-<script setup lang="ts">
-import { ref, onMounted } from "vue";
-import axios from "axios";
-import headeri from "./components/headeri.vue";
-import Formulaires from "./components/Formulaires.vue";
+<script setup>
 
 
+import {api} from '../api'
+import {ref, onMounted} from 'vue'
 
 
+const Stats = ref({
+  total_membres: 0,
+  cotisations_payees: 0,
+  cotisations_impayees: 0,
+});
 
-const loading = ref(false);
-const editMode = ref(false);
-const editId = ref(null);
+onMounted(() => {
+  chargerStats();
+});
 
-//membres et propriété
-const membres = ref([]);
-
-
-const editerMembre = (membre) => {
-  editMode.value = true;
-  editId.value = membre.id;
-  form.value = {
-    nom: membre.nom,
-    prenom: membre.prenom,
-    email: membre.email,
-    telephone: membre.telephone || "",
-    cotisation_payee: membre.cotisation_payee,
-  };
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
-const supprimerMembreConfirm = async (id) => {
-  if (confirm("êtes vous sûr de vouloir supprimer ce membre??")) {
-    try {
-      await api.delete("/membres/${id}");
-      alert("membre supprimé");
-      await chargerMembres();
-      await chargerStats();
-    } catch (error) {
-      console.error("erreur suppression", error);
-      alert("erreur lors de la suppression");
-    }
+const chargerStats = async () => {
+  try {
+    const response = await api.get("/stats");
+    Stats.value = response.data;
+  } catch (error) {
+    console.error("erreur stats", error);
   }
 };
-const annuler = async () => {
-  resetForm();
-};
-const resetForm = () => {
-  form.value = {
-    nom: "",
-    prenom: "",
-    email: "",
-    telephone: "",
-    cotisation_payee: false,
-  };
-  editMode.value = false;
-  editId.value = null;
-};
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("fr-Fr");
-};
 
-/* onMounted(() => {
-  chargerMembres();
-  chargerStats();
-}); */
 </script>
+<template>
 
+  <header>
+    <h1>Gestion des membres au node</h1>
+    <div class="stats">
+      <div class="stat">
+        <span class="label">Total des membres</span>
+        <span class="value">{{ Stats.total_membres }}</span>
+      </div>
+      <div class="'stat'">
+        <span class="label">Cotisations payées</span><br>
+        <span class="value">{{ Stats.cotisations_payees }}</span>
+      </div>
+    </div>
+  </header>
+
+</template>
 <style scoped>
 * {
   margin: 0;
@@ -297,15 +274,3 @@ button {
   background: #d32f2f;
 }
 </style>
-
-<template>
-  <div class="app">
-    <headeri/>
-
-
-
-    <main>
-      <RouterView></RouterView>
-    </main>
-  </div>
-</template>

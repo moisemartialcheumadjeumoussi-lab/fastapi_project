@@ -1,49 +1,15 @@
-<script setup lang="ts">
-import { ref, onMounted } from "vue";
-import axios from "axios";
-import headeri from "./components/headeri.vue";
-import Formulaires from "./components/Formulaires.vue";
+<script setup>
 
 
 
+import {ref} from 'vue'
+import {api} from'../api'
 
 
-const loading = ref(false);
+
 const editMode = ref(false);
 const editId = ref(null);
 
-//membres et propriété
-const membres = ref([]);
-
-
-const editerMembre = (membre) => {
-  editMode.value = true;
-  editId.value = membre.id;
-  form.value = {
-    nom: membre.nom,
-    prenom: membre.prenom,
-    email: membre.email,
-    telephone: membre.telephone || "",
-    cotisation_payee: membre.cotisation_payee,
-  };
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
-const supprimerMembreConfirm = async (id) => {
-  if (confirm("êtes vous sûr de vouloir supprimer ce membre??")) {
-    try {
-      await api.delete("/membres/${id}");
-      alert("membre supprimé");
-      await chargerMembres();
-      await chargerStats();
-    } catch (error) {
-      console.error("erreur suppression", error);
-      alert("erreur lors de la suppression");
-    }
-  }
-};
-const annuler = async () => {
-  resetForm();
-};
 const resetForm = () => {
   form.value = {
     nom: "",
@@ -55,15 +21,81 @@ const resetForm = () => {
   editMode.value = false;
   editId.value = null;
 };
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("fr-Fr");
+
+const annuler = async () => {
+  resetForm();
 };
 
-/* onMounted(() => {
-  chargerMembres();
-  chargerStats();
-}); */
+const form = ref({
+  nom: "",
+  prenom: "",
+  email: "",
+  telephone: "",
+  cotisation_payee: false,
+});
+
+
+const sauvegarderMembre = async () => {
+  try {
+    if (editMode.value) {
+      await api.put("/membres/${editId.value}", form.value);
+      alert("membre modifié avec succès");
+    } else {
+      await api.post("/membres", form.value);
+      alert("membre ajouté avec succès");
+    }
+    resetForm();
+    // await chargerMembres();
+    // await chargerStats();
+  } catch (error) {
+    console.error("erreur sauvegarde", error);
+    alert("erreur lors de la sauvegarde");
+  }
+};
 </script>
+
+
+<template>
+  <section class="form-section">
+    <h2>{{ editMode ? "modifier" : "Ajouter" }} un membre</h2>
+    <form @submit.prevent="sauvegarderMembre">
+      <div class="form-group">
+        <label>Nom</label>
+        <input v-model="form.nom" required type="text" />
+      </div>
+      <div class="form-group">
+        <label>Prenom</label>
+        <input v-model="form.prenom" required type="text" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input v-model="form.email" required type="email" />
+      </div>
+      <div class="form-group">
+        <label>Telephone</label>
+        <input v-model="form.telephone" type="tel" />
+      </div>
+      <div class="form-group checkbox">
+        <label>
+          <input v-model="form.cotisation_payee" type="checkbox" />
+              cotisation payée
+        </label>
+      </div>
+      <div class="buttons">
+        <button type="submit" class="btn-primary">
+          {{ editMode ? "Modifier" : "Ajouter" }}
+        </button>
+        <button v-if="editMode" @click="annuler" type="button" class="btn-secondary">
+          Annuler
+        </button>
+      </div>
+    </form>
+  </section>
+</template>
+
+
+
+
 
 <style scoped>
 * {
@@ -297,15 +329,3 @@ button {
   background: #d32f2f;
 }
 </style>
-
-<template>
-  <div class="app">
-    <headeri/>
-
-
-
-    <main>
-      <RouterView></RouterView>
-    </main>
-  </div>
-</template>

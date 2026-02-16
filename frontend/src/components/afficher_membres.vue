@@ -1,70 +1,37 @@
-<script setup lang="ts">
-import { ref, onMounted } from "vue";
-import axios from "axios";
-import headeri from "./components/headeri.vue";
-import Formulaires from "./components/Formulaires.vue";
 
-
-
-
-
-const loading = ref(false);
-const editMode = ref(false);
-const editId = ref(null);
-
-//membres et propriété
-const membres = ref([]);
-
-
-const editerMembre = (membre) => {
-  editMode.value = true;
-  editId.value = membre.id;
-  form.value = {
-    nom: membre.nom,
-    prenom: membre.prenom,
-    email: membre.email,
-    telephone: membre.telephone || "",
-    cotisation_payee: membre.cotisation_payee,
-  };
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
-const supprimerMembreConfirm = async (id) => {
-  if (confirm("êtes vous sûr de vouloir supprimer ce membre??")) {
-    try {
-      await api.delete("/membres/${id}");
-      alert("membre supprimé");
-      await chargerMembres();
-      await chargerStats();
-    } catch (error) {
-      console.error("erreur suppression", error);
-      alert("erreur lors de la suppression");
-    }
-  }
-};
-const annuler = async () => {
-  resetForm();
-};
-const resetForm = () => {
-  form.value = {
-    nom: "",
-    prenom: "",
-    email: "",
-    telephone: "",
-    cotisation_payee: false,
-  };
-  editMode.value = false;
-  editId.value = null;
-};
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("fr-Fr");
-};
-
-/* onMounted(() => {
-  chargerMembres();
-  chargerStats();
-}); */
-</script>
-
+<template>
+  <section class="list-section">
+        <h2>Liste des membres ({{ membres.length }})</h2>
+        <div v-if="loading" class="loading">En cours de téléchargement</div>
+        <div v-else-if="membres.length === 0" class="empty">Aucun membre enregistré</div>
+        <div v-else class="membres-grid">
+          <div
+            v-for="membre in membres"
+            :key="membre.id"
+            class="membre-card"
+            :class="{ impaye: !membre.cotisation_payee }"
+          >
+            <div class="membre-header">
+              <h3>{{ membre.prenom }} {{ membre.nom }}</h3>
+              <span class="badge" :class="membre.cotisation_payee ? 'payee' : 'impayee'">
+                {{ membre.cotisation_payee ? "Payée" : " Impayée" }}
+              </span>
+            </div>
+            <div class="membre-info">
+              <p>{{ membre.email }}</p>
+              <p v-if="membre.telephone">{{ membre.telephone }}</p>
+              <p class="date">Inscrit le {{ formatDate(membre.date_inscription) }}</p>
+            </div>
+            <div class="membre-actions">
+              <button @click="editerMembre(membre)" class="btn-edit">Modifier</button>
+              <button @click="supprimerMembreConfirm(membre.id)" class="btn-delete">
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+</template>
 <style scoped>
 * {
   margin: 0;
@@ -297,15 +264,3 @@ button {
   background: #d32f2f;
 }
 </style>
-
-<template>
-  <div class="app">
-    <headeri/>
-
-
-
-    <main>
-      <RouterView></RouterView>
-    </main>
-  </div>
-</template>
