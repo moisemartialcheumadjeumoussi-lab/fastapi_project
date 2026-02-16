@@ -1,3 +1,27 @@
+<script setup>
+
+import {
+  editerMembre,
+  supprimerMembre,
+  chargerMembres,
+  editMode
+} from '../useMembres'
+import { formatDate } from '@/date'
+import {membres} from '../membre'
+import {ref, onMounted} from 'vue'
+
+
+
+
+
+const loading = ref(false);
+onMounted (()=>{
+  chargerMembres();
+});
+
+
+
+</script>
 
 <template>
   <section class="list-section">
@@ -24,7 +48,8 @@
             </div>
             <div class="membre-actions">
               <button @click="editerMembre(membre)" class="btn-edit">Modifier</button>
-              <button @click="supprimerMembreConfirm(membre.id)" class="btn-delete">
+
+              <button @click="supprimerMembre(membre.id)" class="btn-delete">
                 Supprimer
               </button>
             </div>
@@ -212,7 +237,7 @@ button {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .badge.payee {

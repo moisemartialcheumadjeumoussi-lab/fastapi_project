@@ -1,57 +1,19 @@
 <script setup>
 
+import {
+  editMode,
+  form,
+  sauvegarderMembre,
+  annuler,
+  chargerMembres
+} from '../useMembres'
 
 
-import {ref} from 'vue'
-import {api} from'../api'
 
 
 
-const editMode = ref(false);
-const editId = ref(null);
-
-const resetForm = () => {
-  form.value = {
-    nom: "",
-    prenom: "",
-    email: "",
-    telephone: "",
-    cotisation_payee: false,
-  };
-  editMode.value = false;
-  editId.value = null;
-};
-
-const annuler = async () => {
-  resetForm();
-};
-
-const form = ref({
-  nom: "",
-  prenom: "",
-  email: "",
-  telephone: "",
-  cotisation_payee: false,
-});
 
 
-const sauvegarderMembre = async () => {
-  try {
-    if (editMode.value) {
-      await api.put("/membres/${editId.value}", form.value);
-      alert("membre modifié avec succès");
-    } else {
-      await api.post("/membres", form.value);
-      alert("membre ajouté avec succès");
-    }
-    resetForm();
-    // await chargerMembres();
-    // await chargerStats();
-  } catch (error) {
-    console.error("erreur sauvegarde", error);
-    alert("erreur lors de la sauvegarde");
-  }
-};
 </script>
 
 
