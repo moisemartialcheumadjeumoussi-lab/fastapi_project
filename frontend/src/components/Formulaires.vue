@@ -1,15 +1,112 @@
 <script setup>
 
-import {
-  editMode,
-  form,
-  sauvegarderMembre,
-  annuler,
-  chargerMembres
-} from '../useMembres'
+import {ref,onMounted} from 'vue'
+import { watch } from 'vue'
+import { useRoute } from 'vue-router'
+import router from '../router/index'
+import {membres} from '../membre'
+import { chargerMembres } from '@/useMembres'
+import {api} from '../api'
 
 
+const route = useRoute()
 
+// ...
+
+
+const props = defineProps ({
+  id: String,
+})
+
+
+watch(
+  () => route.params.id,
+  (newId, oldId) => {
+    console.log(newId,oldId)
+  }
+)
+
+console.log("dddd")
+
+onMounted(() =>{
+  console.log(props.id)
+  chargerMembres().then( () => {
+
+
+    console.log ("ddda")
+    membres.value.forEach(m => {
+    if (m.id == props.id) {
+      editerMembre(m)
+    }
+
+
+  })}
+);
+
+})
+
+const editMode = ref(false)
+// const editId = ref<number | null>(null)
+const form = ref({
+  nom: "",
+  prenom: "",
+  email: "",
+  telephone: "",
+  cotisation_payee: false,
+})
+
+
+const resetForm = () => {
+  form.value = {
+    nom: "",
+    prenom: "",
+    email: "",
+    telephone: "",
+    cotisation_payee: false,
+  }
+  editMode.value = false
+}
+
+const editerMembre = (membre) => {
+
+  editMode.value = true
+  form.value = {
+    nom: membre.nom,
+    prenom: membre.prenom,
+    email: membre.email,
+    telephone: membre.telephone || "",
+    cotisation_payee: membre.cotisation_payee,
+  }
+
+}
+
+const sauvegarderMembre = async () => {
+  try {
+    if (editMode.value) {
+
+      await api.put(`/membres/${props.id}`, form.value)
+      alert("Membre modifié avec succès")
+    } else {
+
+      await api.post("/membres", form.value)
+      alert("Membre ajouté avec succès")
+    }
+    resetForm()
+
+    await chargerMembres()
+    router.push('/membres')
+  } catch (error) {
+    console.error("Erreur sauvegarde:", error)
+    console.log(error)
+
+    alert("Erreur lors de la sauvegarde")
+  }
+}
+
+const annuler = () => {
+  resetForm()
+  router.push('/membres')
+}
 
 
 

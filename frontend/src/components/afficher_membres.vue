@@ -1,14 +1,14 @@
-<script setup>
+<script setup lang="ts">
 
 import {
   editerMembre,
   supprimerMembre,
-  chargerMembres,
-  editMode
+  chargerMembres
 } from '../useMembres'
 import { formatDate } from '@/date'
 import {membres} from '../membre'
 import {ref, onMounted} from 'vue'
+
 
 
 
@@ -47,15 +47,15 @@ onMounted (()=>{
               <p class="date">Inscrit le {{ formatDate(membre.date_inscription) }}</p>
             </div>
             <div class="membre-actions">
-              <button @click="editerMembre(membre)" class="btn-edit">Modifier</button>
-
+              <!-- <button @click="editerMembre(membre)" class="btn-edit">Modifier</button> -->
+               <RouterLink :to="{name:'membre_edit', params:{id:membre.id}}" ><button class="btn-edit" >Modifier</button></RouterLink>
               <button @click="supprimerMembre(membre.id)" class="btn-delete">
                 Supprimer
               </button>
             </div>
           </div>
         </div>
-      </section>
+  </section>
 </template>
 <style scoped>
 * {
