@@ -28,17 +28,10 @@ jobs:
         python -m pip install --upgrade pip
         cd backend 
         pip install -r requirements.txt
-        pip install pytest pytest-cov
     
     - name: Lancer les tests
       run: |
         cd backend 
-        pytest Test.py -v --cov=./ --cov-report=xml
-    
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        fail_ci_if_error: false
+        pytest Test.py -v --cov=./
 
 
