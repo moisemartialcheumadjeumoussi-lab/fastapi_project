@@ -26,14 +26,14 @@ watch(
   }
 )
 
-console.log("dddd")
+//console.log("dddd")
 
 onMounted(() =>{
-  console.log(props.id)
+  //console.log(props.id)
   chargerMembres().then( () => {
 
 
-    console.log ("ddda")
+    //console.log ("ddda")
     membres.value.forEach(m => {
     if (m.id == props.id) {
       editerMembre(m)

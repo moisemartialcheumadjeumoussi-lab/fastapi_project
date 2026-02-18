@@ -1,10 +1,9 @@
 <script setup lang="ts">
-// On importe useRouter pour pouvoir naviguer vers d'autres pages au clic d'un bouton
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// Fonction appelée quand l'utilisateur clique sur "Ajouter un membre"
+
 const allerAjouter = () => {
   router.push('/formulaire') // redirige vers la route /ajouter
 }
@@ -19,7 +18,7 @@ const allerGestion = () => {
   <div class="accueil">
 
 
-    <div class="hero-icon">Viens on fom😴😋</div>
+    <div class="hero-icon">🐈🐈</div>
 
     <h1 class="titre">Bienvenue dans votre espace de gestion</h1>
 

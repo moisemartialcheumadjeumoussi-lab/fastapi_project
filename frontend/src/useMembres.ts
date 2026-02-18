@@ -1,7 +1,6 @@
-import { ref } from 'vue'
 import { api } from './api'
 import { membres } from './membre'
-import router from './router'
+
 
 
 
