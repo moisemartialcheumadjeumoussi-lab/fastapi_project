@@ -54,7 +54,10 @@ def lire_membres(cotisation_payee: Optional[bool] = None,db: Database = Depends(
 
 @app.get("/api/membres/{membre_id}", response_model=Membre)
 def lire_membre(membre_id: int,db: Database = Depends(get_database)):
-    return db.get_membre_by_id(membre_id)
+    result = db.get_membre_by_id(membre_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Membre non trouvé")
+    return result
 
 
 
