@@ -1,11 +1,17 @@
-
+import sys
+import os
 from datetime import datetime
+
+import pytest
+
 from db import Database, membres_db, id_counter
 from Membre import MembreCreate
 from fastapi.testclient import TestClient
 from main import app
 import db
 
+
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 client = TestClient(app)
 
 
@@ -210,3 +216,6 @@ def test_stats1():
     assert stats["total_membres"] == 2
     assert stats["cotisations_payees"] == 1
     assert stats["cotisations_impayees"] == 1
+
+if __name__=='__main__':
+    pytest.main(["-v","Test.py"])
