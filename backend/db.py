@@ -1,9 +1,13 @@
+import sqlite3
 from typing import List, Optional
 from datetime import datetime
 from Membre import Membre, MembreCreate
 
+
+DB_PATH = "membres.db"
 membres_db: List[Membre] = []
 id_counter: int = 0
+
 
 
 class Database:

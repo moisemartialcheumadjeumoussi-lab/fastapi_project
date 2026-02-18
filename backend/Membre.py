@@ -4,7 +4,6 @@ from typing import Optional
 
 
 class MembreCreate(BaseModel):
-    """Modèle pour la création d'un membre"""
     nom: str
     prenom: str
     email: EmailStr
@@ -13,7 +12,7 @@ class MembreCreate(BaseModel):
 
 
 class Membre(BaseModel):
-    """Modèle complet d'un membre"""
+
     id: int
     nom: str
     prenom: str

@@ -3,9 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 
 from Membre import Membre, MembreCreate
-from db import Database
+from db import Database,initialisation_de_la_bd
 #import SQLAlchemy
 
+
+initialisation_de_la_bd()
 app = FastAPI(title='Gestion Membre')
 
 # Configuration CORS

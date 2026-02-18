@@ -19,6 +19,11 @@ def setup_function():
     """Réinitialise la base avant chaque test"""
     db.membres_db.clear()
     db.id_counter = 0
+    with db.get_connection() as conn:
+        conn.execute("DELETE FROM membres")
+        conn.commit()
+
+        conn.execute("DELETE FROM sqlite_sequence WHERE name ='membres'")
 
 
 
