@@ -16,48 +16,6 @@ id_counter: int = 0
 
 
 
-def sauvegarder_membre(membre: Membre):
-    """Sauvegarde un membre dans SQLite (insertion ou mise à jour)"""
-    with get_connection() as conn:
-        # Vérifier si le membre existe déjà
-        existing = conn.execute("SELECT id FROM membres WHERE id = ?", (membre.id,)).fetchone()
-
-        if existing:
-            # Mise à jour
-            conn.execute("""
-                         UPDATE membres
-                         SET nom=?,
-                             prenom=?,
-                             email=?,
-                             telephone=?,
-                             cotisation_payee=?,
-                             date_inscription=?
-                         WHERE id = ?
-                         """, (
-                             membre.nom, membre.prenom, membre.email, membre.telephone,
-                             int(membre.cotisation_payee), membre.date_inscription.isoformat(),
-                             membre.id
-                         ))
-        else:
-            # Insertion
-            conn.execute("""
-                         INSERT INTO membres (id, nom, prenom, email, telephone, cotisation_payee, date_inscription)
-                         VALUES (?, ?, ?, ?, ?, ?, ?)
-                         """, (
-                             membre.id, membre.nom, membre.prenom, membre.email, membre.telephone,
-                             int(membre.cotisation_payee), membre.date_inscription.isoformat()
-                         ))
-
-        conn.commit()
-
-
-def supprimer_membre_db(membre_id: int):
-    """Supprime un membre de SQLite"""
-    with get_connection() as conn:
-        conn.execute("DELETE FROM membres WHERE id = ?", (membre_id))
-        conn.commit()
-
-
 class DatabaseSqlite:
     # Base de données en mémoire
 
@@ -148,38 +106,83 @@ class DatabaseSqlite:
                          ))
 
             conn.commit()
+        return self.get_all_membres()
+
+    def update_membre(self, membre_id: int, membre: MembreCreate) -> Optional[Membre]:
+        with self.conn as conn:
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT * FROM membres WHERE id = ?", (membre_id,))
+            row = cursor.fetchone()
+
+            if not row:
+                return None
+
+            date_inscription = datetime.now()
+
+            cursor.execute("""
+                           UPDATE membres
+                           SET nom= ?,
+                               prenom= ?,
+                               email= ?,
+                               telephone = ?,
+                               cotisation_payee = ?,
+                               date_inscription = ?
+                           WHERE id = ?
+                           """, (
+                               membre.nom,
+                               membre.prenom,
+                               membre.email,
+                               membre.telephone,
+                               int(membre.cotisation_payee),
+                               date_inscription.isoformat(),
+                               membre_id
+                           ))
+
+            conn.commit()
+        return self.get_membre_by_id(membre_id)
 
 
 
-    def update_membre(membre_id: int, membre_data: MembreCreate) -> Optional[Membre]:
-        """Met à jour un membre existant"""
-        for i, membre in enumerate(membres_db):
-            if membre.id == membre_id:
-                membre_modifie = Membre(
-                    id=membre_id,
-                    **membre_data.dict(),
-                    date_inscription=membre.date_inscription
-                )
-                membres_db[i] = membre_modifie
-                sauvegarder_membre(membre_modifie)
-                return membre_modifie
-        return None
 
 
-    def delete_membre(membre_id: int) -> bool:
-        """Supprime un membre"""
-        for i, membre in enumerate(membres_db):
-            if membre.id == membre_id:
-                membres_db.pop(i)
-                supprimer_membre_db(membre_id)
-                return True
-        return False
+    def delete_membre(self,membre_id: int) -> bool:
+        with self.conn as conn:
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT * FROM membres WHERE id = ?", (membre_id,))
+            row = cursor.fetchone()
+
+            if not row:
+                return None
+
+            cursor.execute("""DELETE  FROM membres WHERE id = ?""", (membre_id,))
+            conn.commit()
+        return self.get_all_membres()
+
+    def get_stats(self) -> dict:
+        with self.conn as conn:
+
+            l = self.get_all_membres()
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM membres ")
+            rows = cursor.fetchall()
+            i=0
+            j=0
+            for row in rows:
+                if (row["cotisation_payee"] == True):
+                    i+=1
+                else :
+                    j+=1
 
 
-    def get_stats() -> dict:
-        """Récupère les statistiques des membres"""
+
+
+
+
         return {
-            "total_membres": len(membres_db),
-            "cotisations_payees": sum(1 for m in membres_db if m.cotisation_payee),
-            "cotisations_impayees": sum(1 for m in membres_db if not m.cotisation_payee)
+            "total_membres": len(l),
+            "cotisations_payees": i,
+            "cotisations_impayees": j
         }
+
