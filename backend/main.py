@@ -40,8 +40,7 @@ def get_database():
 
 
 @app.post("/api/membres", response_model=Membre)
-def creer_membre(membre: MembreCreate,db1: DatabaseSqlite = Depends(get_database)):
-
+def creer_membre(membre: MembreCreate, db1: DatabaseSqlite = Depends(get_database)):
 
     db1.create_membre(membre)
     membres = db1.get_all_membres()
@@ -56,26 +55,28 @@ def lire_membres(db1: DatabaseSqlite = Depends(get_database)):
 
 
 @app.get("/api/membres/{membre_id}", response_model=Membre)
-def lire_membre(membre_id: int,db1: DatabaseSqlite = Depends(get_database)):
+def lire_membre(membre_id: int, db1: DatabaseSqlite = Depends(get_database)):
     result1 = db1.get_membre_by_id(membre_id)
-    if  not result1:
+    if not result1:
         raise HTTPException(status_code=404, detail="Membre non trouvé")
-    return  result1
+    return result1
 
 
 @app.put("/api/membres/{membre_id}", response_model=Membre)
 def modifier_membre(
-    membre_id: int, membre_data: MembreCreate,db1: DatabaseSqlite = Depends(get_database)
+    membre_id: int,
+    membre_data: MembreCreate,
+    db1: DatabaseSqlite = Depends(get_database),
 ):
     """Modifier un membre existant"""
     membre_modifie1 = db1.update_membre(membre_id, membre_data)
-    if  membre_modifie1 is None:
+    if membre_modifie1 is None:
         raise HTTPException(status_code=404, detail="Membre non trouvé")
     return membre_modifie1
 
 
 @app.delete("/api/membres/{membre_id}")
-def supprimer_membre(membre_id: int,db1: DatabaseSqlite = Depends(get_database)):
+def supprimer_membre(membre_id: int, db1: DatabaseSqlite = Depends(get_database)):
     """Supprimer un membre"""
     if not db1.delete_membre(membre_id):
         raise HTTPException(status_code=404, detail="Membre non trouvé")

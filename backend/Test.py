@@ -20,7 +20,6 @@ def setup_function():
     Data.test_clear_db()
 
 
-
 def test_create_membre():
     membre_data = MembreCreate(
         nom="Dupont",
@@ -32,15 +31,14 @@ def test_create_membre():
 
     membre = Data.create_membre(membre_data)
     assert membre.nom == "Dupont"
-    assert membre.prenom== "Jean"
-    assert membre.email=="jean@example.com"
-    assert membre.telephone=="0600000000"
+    assert membre.prenom == "Jean"
+    assert membre.email == "jean@example.com"
+    assert membre.telephone == "0600000000"
     assert membre.cotisation_payee is True
 
 
-
 def test_get_all_membres():
-    a1=Data.create_membre(
+    a1 = Data.create_membre(
         MembreCreate(
             nom="A",
             prenom="A",
@@ -49,7 +47,7 @@ def test_get_all_membres():
             cotisation_payee=True,
         )
     )
-    b1=Data.create_membre(
+    b1 = Data.create_membre(
         MembreCreate(
             nom="B",
             prenom="B",
@@ -63,14 +61,19 @@ def test_get_all_membres():
 
     assert len(membres) == 2
     assert membres[0].nom == a1.nom
-    assert membres[1].nom== b1.nom
+    assert membres[1].nom == b1.nom
 
 
 def test_get_membre_by_id():
-    created = Data.create_membre(MembreCreate(
-        nom="Test", prenom="User", email="test@mail.com",
-        telephone="0603030303", cotisation_payee=True,
-    ))
+    created = Data.create_membre(
+        MembreCreate(
+            nom="Test",
+            prenom="User",
+            email="test@mail.com",
+            telephone="0603030303",
+            cotisation_payee=True,
+        )
+    )
 
     member = Data.get_membre_by_id(created.id)
 
@@ -135,7 +138,7 @@ def test_delete_membre():
     result = Data.delete_membre(created.id)
 
     assert result is True
-    assert len (Data.get_all_membres())==0
+    assert len(Data.get_all_membres()) == 0
 
 
 def test_delete_membre_not_found():
@@ -209,10 +212,16 @@ def test_get_membres1():
 
 
 def test_get_membre_by_id1():
-    r = client.post("/api/membres", json={
-        "nom": "Test", "prenom": "User", "email": "test@mail.com",
-        "telephone": "0602020202", "cotisation_payee": True,
-    })
+    r = client.post(
+        "/api/membres",
+        json={
+            "nom": "Test",
+            "prenom": "User",
+            "email": "test@mail.com",
+            "telephone": "0602020202",
+            "cotisation_payee": True,
+        },
+    )
     membre_id = r.json()["id"]
 
     response = client.get(f"/api/membres/{membre_id}")

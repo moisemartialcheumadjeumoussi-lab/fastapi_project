@@ -14,7 +14,6 @@ class DatabaseSqlite:
         self.conn = sqlite3.connect("membres.db")
         self.conn.row_factory = sqlite3.Row
 
-
     # with self.conn permet de faire une transactions   https://www.bing.com/ck/a?!&&p=9d3352a9c16fff9eccf428167104aad132fdb852ba024db351c65312c034000eJmltdHM9MTc3MTM3MjgwMA&ptn=3&ver=2&hsh=4&fclid=1d48ab87-1db1-6619-07ce-bd711c8b67d5&psq=sqlite+begin+transaction&u=a1aHR0cHM6Ly93d3cuc3FsaXRldHV0b3JpYWwubmV0L3NxbGl0ZS10cmFuc2FjdGlvbi8
     def initialisation_de_la_db(self):
         with self.conn as conn:
@@ -72,7 +71,6 @@ class DatabaseSqlite:
                 )
                 l.append(m)
 
-
         return l
 
     def get_membre_by_id(self, membre_id: int) -> Optional[Membre]:
@@ -113,7 +111,7 @@ class DatabaseSqlite:
             )
 
             conn.commit()
-        c= self.get_all_membres()
+        c = self.get_all_membres()
         return c[-1]
 
     def update_membre(self, membre_id: int, membre: MembreCreate) -> Optional[Membre]:
@@ -187,9 +185,9 @@ class DatabaseSqlite:
             "cotisations_payees": i,
             "cotisations_impayees": j,
         }
+
     def test_clear_db(self):
         with self.conn as conn:
             conn.execute("DELETE FROM membres")
             conn.execute("DELETE FROM sqlite_sequence WHERE name='membres'")
             conn.commit()
-
