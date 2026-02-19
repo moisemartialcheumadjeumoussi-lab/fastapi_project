@@ -44,13 +44,11 @@ def creer_membre(membre: MembreCreate, db1: DatabaseSqlite = Depends(get_databas
 
     db1.create_membre(membre)
     membres = db1.get_all_membres()
-    """Créer un nouveau membre"""
     return membres[-1]
 
 
 @app.get("/api/membres", response_model=List[Membre])
 def lire_membres(db1: DatabaseSqlite = Depends(get_database)):
-    """Récupérer la liste des membres avec filtre optionnel"""
     return db1.get_all_membres()
 
 
@@ -68,7 +66,7 @@ def modifier_membre(
     membre_data: MembreCreate,
     db1: DatabaseSqlite = Depends(get_database),
 ):
-    """Modifier un membre existant"""
+
     membre_modifie1 = db1.update_membre(membre_id, membre_data)
     if membre_modifie1 is None:
         raise HTTPException(status_code=404, detail="Membre non trouvé")
@@ -77,7 +75,7 @@ def modifier_membre(
 
 @app.delete("/api/membres/{membre_id}")
 def supprimer_membre(membre_id: int, db1: DatabaseSqlite = Depends(get_database)):
-    """Supprimer un membre"""
+
     if not db1.delete_membre(membre_id):
         raise HTTPException(status_code=404, detail="Membre non trouvé")
     return {"message": "Membre supprimé avec succès"}
@@ -85,5 +83,5 @@ def supprimer_membre(membre_id: int, db1: DatabaseSqlite = Depends(get_database)
 
 @app.get("/api/stats")
 def obtenir_stats(db1: DatabaseSqlite = Depends(get_database)):
-    """Récupérer les statistiques des membres"""
+
     return db1.get_stats()

@@ -167,23 +167,21 @@ class DatabaseSqlite:
 
     def get_stats(self) -> dict:
         with self.conn as conn:
-
-            l = self.get_all_membres()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM membres ")
-            rows = cursor.fetchall()
-            i = 0
-            j = 0
-            for row in rows:
-                if row["cotisation_payee"] == True:
-                    i += 1
-                else:
-                    j += 1
+
+            cursor.execute("SELECT COUNT(*) FROM membres")
+            total = cursor.fetchone()[0]
+
+            cursor.execute("SELECT COUNT(*) FROM membres WHERE cotisation_payee = 1")
+            payees = cursor.fetchone()[0]
+
+            cursor.execute("SELECT COUNT(*) FROM membres WHERE cotisation_payee = 0")
+            impayees = cursor.fetchone()[0]
 
         return {
-            "total_membres": len(l),
-            "cotisations_payees": i,
-            "cotisations_impayees": j,
+            "total_membres": total,
+            "cotisations_payees": payees,
+            "cotisations_impayees": impayees,
         }
 
     def test_clear_db(self):
