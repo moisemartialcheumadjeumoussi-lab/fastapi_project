@@ -34,4 +34,8 @@ jobs:
         cd backend 
         pytest Test.py -v --cov=./
 
+    - name: Formatage black
+      run: |
+        black --check
+
 
