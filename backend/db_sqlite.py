@@ -118,12 +118,6 @@ class DatabaseSqlite:
         with self.conn as conn:
             cursor = conn.cursor()
 
-            cursor.execute("SELECT * FROM membres WHERE id = ?", (membre_id,))
-            row = cursor.fetchone()
-
-            if not row:
-                return None
-
             date_inscription = datetime.now()
 
             cursor.execute(
@@ -149,6 +143,8 @@ class DatabaseSqlite:
             )
 
             conn.commit()
+        if cursor.rowcount==0:
+            return None
         return self.get_membre_by_id(membre_id)
 
     def delete_membre(self, membre_id: int) -> bool:
@@ -156,14 +152,9 @@ class DatabaseSqlite:
             cursor = conn.cursor()
 
             cursor.execute("SELECT * FROM membres WHERE id = ?", (membre_id,))
-            row = cursor.fetchone()
-
-            if not row:
-                return None
-
-            cursor.execute("""DELETE  FROM membres WHERE id = ?""", (membre_id,))
             conn.commit()
-        return True
+        return cursor.rowcount > 0
+
 
     def get_stats(self) -> dict:
         with self.conn as conn:
