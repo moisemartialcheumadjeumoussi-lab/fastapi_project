@@ -1,16 +1,14 @@
-import sqlite3
 from typing import List, Optional
 from datetime import datetime
 from Membre import Membre, MembreCreate
 
-DB_PATH = "membres.db"
+
 membres_db: List[Membre] = []
-id_counter: int = 0
+global id_counter
 
 
 class Database:
     # Base de données en mémoire
-
     @staticmethod
     def get_all_membres() -> List[Membre]:
         """Récupère tous les membres, avec filtre optionnel sur cotisation_payee"""
