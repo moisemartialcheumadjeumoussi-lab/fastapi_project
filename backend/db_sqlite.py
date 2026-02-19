@@ -7,15 +7,6 @@ DB_PATH = "membres.db"
 id_counter: int = 0
 
 
-
-
-
-
-
-
-
-
-
 class DatabaseSqlite:
     # Base de données en mémoire
 

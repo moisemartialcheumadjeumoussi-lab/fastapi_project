@@ -1,13 +1,12 @@
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Optional
+from typing import List
 
 from Membre import Membre, MembreCreate
-from db import Database,initialisation_de_la_bd
-#import SQLAlchemy
+from db import Database
+from db_sqlite import DatabaseSqlite
 
 
-initialisation_de_la_bd()
 app = FastAPI(title='Gestion Membre')
 
 # Configuration CORS
@@ -29,6 +28,7 @@ def root():
 
 def get_database():
     db = Database()
+
     return db
 
 
@@ -49,7 +49,7 @@ def creer_membre(membre: MembreCreate,db: Database = Depends(get_database)):
 
 
 @app.get("/api/membres", response_model=List[Membre])
-def lire_membres(cotisation_payee: Optional[bool] = None,db: Database = Depends(get_database)):
+def lire_membres(db: Database = Depends(get_database)):
     """Récupérer la liste des membres avec filtre optionnel"""
     return db.get_all_membres()
 
