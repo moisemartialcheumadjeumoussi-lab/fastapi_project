@@ -30,14 +30,6 @@ def get_database():
     return db1
 
 
-"""def get_database():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-"""
-
 
 @app.post("/api/membres", response_model=Membre)
 def creer_membre(membre: MembreCreate, db1: DatabaseSqlite = Depends(get_database)):
