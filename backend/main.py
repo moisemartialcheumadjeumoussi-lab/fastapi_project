@@ -6,8 +6,7 @@ from Membre import Membre, MembreCreate
 from db import Database
 from db_sqlite import DatabaseSqlite
 
-
-app = FastAPI(title='Gestion Membre')
+app = FastAPI(title="Gestion Membre")
 
 # Configuration CORS
 app.add_middleware(
@@ -18,19 +17,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Routes
 @app.get("/")
 def root():
     return {"message": "API Gestion Node coworking"}
 
 
-
-
 def get_database():
     db = Database()
 
     return db
-
 
 
 """def get_database():
@@ -41,9 +38,9 @@ def get_database():
         db.close()
 """
 
-@app.post("/api/membres", response_model=Membre)
 
-def creer_membre(membre: MembreCreate,db: Database = Depends(get_database)):
+@app.post("/api/membres", response_model=Membre)
+def creer_membre(membre: MembreCreate, db: Database = Depends(get_database)):
     """Créer un nouveau membre"""
     return db.create_membre(membre)
 
@@ -55,16 +52,17 @@ def lire_membres(db: Database = Depends(get_database)):
 
 
 @app.get("/api/membres/{membre_id}", response_model=Membre)
-def lire_membre(membre_id: int,db: Database = Depends(get_database)):
+def lire_membre(membre_id: int, db: Database = Depends(get_database)):
     result = db.get_membre_by_id(membre_id)
     if not result:
         raise HTTPException(status_code=404, detail="Membre non trouvé")
     return result
 
 
-
 @app.put("/api/membres/{membre_id}", response_model=Membre)
-def modifier_membre(membre_id: int, membre_data: MembreCreate,db: Database = Depends(get_database)):
+def modifier_membre(
+    membre_id: int, membre_data: MembreCreate, db: Database = Depends(get_database)
+):
     """Modifier un membre existant"""
     membre_modifie = db.update_membre(membre_id, membre_data)
     if membre_modifie is None:
@@ -73,7 +71,7 @@ def modifier_membre(membre_id: int, membre_data: MembreCreate,db: Database = Dep
 
 
 @app.delete("/api/membres/{membre_id}")
-def supprimer_membre(membre_id: int,db: Database = Depends(get_database)):
+def supprimer_membre(membre_id: int, db: Database = Depends(get_database)):
     """Supprimer un membre"""
     if not db.delete_membre(membre_id):
         raise HTTPException(status_code=404, detail="Membre non trouvé")

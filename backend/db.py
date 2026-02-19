@@ -3,17 +3,13 @@ from typing import List, Optional
 from datetime import datetime
 from Membre import Membre, MembreCreate
 
-
 DB_PATH = "membres.db"
 membres_db: List[Membre] = []
 id_counter: int = 0
 
 
-
 class Database:
     # Base de données en mémoire
-
-
 
     @staticmethod
     def get_all_membres() -> List[Membre]:
@@ -34,9 +30,7 @@ class Database:
         global id_counter
 
         nouveau_membre = Membre(
-            id=id_counter,
-            **membre_data.dict(),
-            date_inscription=datetime.now()
+            id=id_counter, **membre_data.dict(), date_inscription=datetime.now()
         )
         membres_db.append(nouveau_membre)
         id_counter += 1
@@ -65,12 +59,13 @@ class Database:
                 return True
         return False
 
-
     @staticmethod
     def get_stats() -> dict:
         """Récupère les statistiques des membres"""
         return {
             "total_membres": len(membres_db),
             "cotisations_payees": sum(1 for m in membres_db if m.cotisation_payee),
-            "cotisations_impayees": sum(1 for m in membres_db if not m.cotisation_payee)
+            "cotisations_impayees": sum(
+                1 for m in membres_db if not m.cotisation_payee
+            ),
         }

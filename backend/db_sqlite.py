@@ -11,10 +11,10 @@ class DatabaseSqlite:
     # Base de données en mémoire
 
     def __init__(self):
-        self.conn = sqlite3.connect('membres.db')
+        self.conn = sqlite3.connect("membres.db")
         self.conn.row_factory = sqlite3.Row
 
-    #with self.conn permet de faire une transactions   https://www.bing.com/ck/a?!&&p=9d3352a9c16fff9eccf428167104aad132fdb852ba024db351c65312c034000eJmltdHM9MTc3MTM3MjgwMA&ptn=3&ver=2&hsh=4&fclid=1d48ab87-1db1-6619-07ce-bd711c8b67d5&psq=sqlite+begin+transaction&u=a1aHR0cHM6Ly93d3cuc3FsaXRldHV0b3JpYWwubmV0L3NxbGl0ZS10cmFuc2FjdGlvbi8
+    # with self.conn permet de faire une transactions   https://www.bing.com/ck/a?!&&p=9d3352a9c16fff9eccf428167104aad132fdb852ba024db351c65312c034000eJmltdHM9MTc3MTM3MjgwMA&ptn=3&ver=2&hsh=4&fclid=1d48ab87-1db1-6619-07ce-bd711c8b67d5&psq=sqlite+begin+transaction&u=a1aHR0cHM6Ly93d3cuc3FsaXRldHV0b3JpYWwubmV0L3NxbGl0ZS10cmFuc2FjdGlvbi8
     def initialisation_de_la_db(self):
         with self.conn as conn:
             conn.execute("""
@@ -52,49 +52,64 @@ class DatabaseSqlite:
 
             conn.commit()
 
-
-
-
     def get_all_membres(self) -> List[Membre]:
-         with self.conn as conn:
-             l =[]
+        with self.conn as conn:
+            l = []
 
-             cursor = conn.cursor()
-             cursor.execute("SELECT * FROM membres ")
-             rows=cursor.fetchall()
-             for row in rows:
-                 m = Membre(id=row["id"],nom=row["nom"],prenom=row["prenom"],email=row["email"],telephone=row["telephone"],cotisation_payee=row["cotisation_payee"],date_inscription=row["date_inscription"])
-                 l.append(m)
-             print(l)
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM membres ")
+            rows = cursor.fetchall()
+            for row in rows:
+                m = Membre(
+                    id=row["id"],
+                    nom=row["nom"],
+                    prenom=row["prenom"],
+                    email=row["email"],
+                    telephone=row["telephone"],
+                    cotisation_payee=row["cotisation_payee"],
+                    date_inscription=row["date_inscription"],
+                )
+                l.append(m)
+            print(l)
 
+        return l
 
-         return l
-
-
-    def get_membre_by_id(self,membre_id: int) -> Optional[Membre]:
+    def get_membre_by_id(self, membre_id: int) -> Optional[Membre]:
         with self.conn as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM membres WHERE id=?",(membre_id,))
+            cursor.execute("SELECT * FROM membres WHERE id=?", (membre_id,))
             row = cursor.fetchone()
-            if not row :
+            if not row:
                 return None
-            m = Membre(id=row["id"], nom=row["nom"], prenom=row["prenom"], email=row["email"],
-                           telephone=row["telephone"], cotisation_payee=row["cotisation_payee"],
-                           date_inscription=row["date_inscription"])
+            m = Membre(
+                id=row["id"],
+                nom=row["nom"],
+                prenom=row["prenom"],
+                email=row["email"],
+                telephone=row["telephone"],
+                cotisation_payee=row["cotisation_payee"],
+                date_inscription=row["date_inscription"],
+            )
 
         return m
 
-
     def create_membre(self, membre: MembreCreate):
         with self.conn as conn:
-            date_inscription=datetime.now()
-            conn.execute("""
+            date_inscription = datetime.now()
+            conn.execute(
+                """
                          INSERT INTO membres (nom, prenom, email, telephone, cotisation_payee, date_inscription)
                          VALUES ( ?, ?, ?, ?, ?, ?)
-                         """, (
-                              membre.nom, membre.prenom, membre.email, membre.telephone,
-                             int(membre.cotisation_payee), date_inscription.isoformat()
-                         ))
+                         """,
+                (
+                    membre.nom,
+                    membre.prenom,
+                    membre.email,
+                    membre.telephone,
+                    int(membre.cotisation_payee),
+                    date_inscription.isoformat(),
+                ),
+            )
 
             conn.commit()
         return self.get_all_membres()
@@ -111,7 +126,8 @@ class DatabaseSqlite:
 
             date_inscription = datetime.now()
 
-            cursor.execute("""
+            cursor.execute(
+                """
                            UPDATE membres
                            SET nom= ?,
                                prenom= ?,
@@ -120,24 +136,22 @@ class DatabaseSqlite:
                                cotisation_payee = ?,
                                date_inscription = ?
                            WHERE id = ?
-                           """, (
-                               membre.nom,
-                               membre.prenom,
-                               membre.email,
-                               membre.telephone,
-                               int(membre.cotisation_payee),
-                               date_inscription.isoformat(),
-                               membre_id
-                           ))
+                           """,
+                (
+                    membre.nom,
+                    membre.prenom,
+                    membre.email,
+                    membre.telephone,
+                    int(membre.cotisation_payee),
+                    date_inscription.isoformat(),
+                    membre_id,
+                ),
+            )
 
             conn.commit()
         return self.get_membre_by_id(membre_id)
 
-
-
-
-
-    def delete_membre(self,membre_id: int) -> bool:
+    def delete_membre(self, membre_id: int) -> bool:
         with self.conn as conn:
             cursor = conn.cursor()
 
@@ -158,22 +172,16 @@ class DatabaseSqlite:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM membres ")
             rows = cursor.fetchall()
-            i=0
-            j=0
+            i = 0
+            j = 0
             for row in rows:
-                if (row["cotisation_payee"] == True):
-                    i+=1
-                else :
-                    j+=1
-
-
-
-
-
+                if row["cotisation_payee"] == True:
+                    i += 1
+                else:
+                    j += 1
 
         return {
             "total_membres": len(l),
             "cotisations_payees": i,
-            "cotisations_impayees": j
+            "cotisations_impayees": j,
         }
-
