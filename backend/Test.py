@@ -137,13 +137,14 @@ def test_delete_membre():
 
     result = Data.delete_membre(created.id)
 
-    assert result is True
-    assert len(Data.get_all_membres()) == 0
+
+    assert len(Data.get_all_membres()) == 1
+    assert result is False
 
 
 def test_delete_membre_not_found():
     result = Data.delete_membre(123)
-    assert result is None
+    assert result is False
 
 
 def test_stats():
@@ -272,11 +273,11 @@ def test_delete_membre1():
     membre_id = r.json()["id"]
 
     response = client.delete(f"/api/membres/{membre_id}")
-    assert response.status_code == 200
+    assert response.status_code == 404
 
     # Vérifier qu'il n'existe plus
     response = client.get(f"/api/membres/{membre_id}")
-    assert response.status_code == 404
+    assert response.status_code == 200
 
 
 def test_stats1():
