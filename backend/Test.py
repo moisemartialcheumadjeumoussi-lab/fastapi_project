@@ -1,28 +1,24 @@
 import sys
 import os
-from datetime import datetime
 
 import pytest
-
-from db import Database, membres_db, id_counter
 from Membre import MembreCreate
 from fastapi.testclient import TestClient
 from main import app
-import db
+
+from db_sqlite import DatabaseSqlite
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 client = TestClient(app)
 
+Data = DatabaseSqlite()
+Data.initialisation_de_la_db()
+
 
 def setup_function():
-    """Réinitialise la base avant chaque test"""
-    db.membres_db.clear()
-    db.id_counter = 0
-    with db.get_connection() as conn:
-        conn.execute("DELETE FROM membres")
-        conn.commit()
 
-        conn.execute("DELETE FROM sqlite_sequence WHERE name ='membres'")
+    Data.test_clear_db()
+
 
 
 def test_create_membre():
@@ -34,18 +30,17 @@ def test_create_membre():
         cotisation_payee=True,
     )
 
-    membre = Database.create_membre(membre_data)
-
-    assert membre.id == 0
+    membre = Data.create_membre(membre_data)
     assert membre.nom == "Dupont"
-    assert membre.telephone == "0600000000"
+    assert membre.prenom== "Jean"
+    assert membre.email=="jean@example.com"
+    assert membre.telephone=="0600000000"
     assert membre.cotisation_payee is True
-    assert isinstance(membre.date_inscription, datetime)
-    assert len(membres_db) == 1
+
 
 
 def test_get_all_membres():
-    Database.create_membre(
+    a1=Data.create_membre(
         MembreCreate(
             nom="A",
             prenom="A",
@@ -54,7 +49,7 @@ def test_get_all_membres():
             cotisation_payee=True,
         )
     )
-    Database.create_membre(
+    b1=Data.create_membre(
         MembreCreate(
             nom="B",
             prenom="B",
@@ -64,32 +59,27 @@ def test_get_all_membres():
         )
     )
 
-    membres = Database.get_all_membres()
+    membres = Data.get_all_membres()
 
     assert len(membres) == 2
-    assert membres[0].nom == "A"
-    assert membres[1].nom == "B"
+    assert membres[0].nom == a1.nom
+    assert membres[1].nom== b1.nom
 
 
 def test_get_membre_by_id():
-    Database.create_membre(
-        MembreCreate(
-            nom="Test",
-            prenom="User",
-            email="test@mail.com",
-            telephone="0603030303",
-            cotisation_payee=True,
-        )
-    )
+    created = Data.create_membre(MembreCreate(
+        nom="Test", prenom="User", email="test@mail.com",
+        telephone="0603030303", cotisation_payee=True,
+    ))
 
-    membre = Database.get_membre_by_id(0)
+    member = Data.get_membre_by_id(created.id)
 
-    assert membre is not None
-    assert membre.nom == "Test"
+    assert member is not None
+    assert member.nom == "Test"
 
 
 def test_update_membre():
-    Database.create_membre(
+    created = Data.create_membre(
         MembreCreate(
             nom="Old",
             prenom="Name",
@@ -99,8 +89,8 @@ def test_update_membre():
         )
     )
 
-    updated = Database.update_membre(
-        0,
+    updated = Data.update_membre(
+        created.id,
         MembreCreate(
             nom="New",
             prenom="Name",
@@ -117,7 +107,7 @@ def test_update_membre():
 
 
 def test_update_membre_not_found():
-    updated = Database.update_membre(
+    updated = Data.update_membre(
         999,
         MembreCreate(
             nom="X",
@@ -132,7 +122,7 @@ def test_update_membre_not_found():
 
 
 def test_delete_membre():
-    Database.create_membre(
+    created = Data.create_membre(
         MembreCreate(
             nom="Delete",
             prenom="Me",
@@ -142,20 +132,19 @@ def test_delete_membre():
         )
     )
 
-    result = Database.delete_membre(0)
+    result = Data.delete_membre(created.id)
 
     assert result is True
-
-    assert len(membres_db) == 0
+    assert len (Data.get_all_membres())==0
 
 
 def test_delete_membre_not_found():
-    result = Database.delete_membre(123)
-    assert result is False
+    result = Data.delete_membre(123)
+    assert result is None
 
 
 def test_stats():
-    Database.create_membre(
+    Data.create_membre(
         MembreCreate(
             nom="A",
             prenom="A",
@@ -164,7 +153,7 @@ def test_stats():
             cotisation_payee=True,
         )
     )
-    Database.create_membre(
+    Data.create_membre(
         MembreCreate(
             nom="B",
             prenom="B",
@@ -174,7 +163,7 @@ def test_stats():
         )
     )
 
-    stats = Database.get_stats()
+    stats = Data.get_stats()
 
     assert stats["total_membres"] == 2
     assert stats["cotisations_payees"] == 1
@@ -198,7 +187,7 @@ def test_post_membre1():
     data = response.json()
     assert data["nom"] == "Jean"
     assert data["telephone"] == "0600000000"
-    assert data["id"] == 0
+    assert "id" in data
 
 
 def test_get_membres1():
@@ -220,26 +209,20 @@ def test_get_membres1():
 
 
 def test_get_membre_by_id1():
+    r = client.post("/api/membres", json={
+        "nom": "Test", "prenom": "User", "email": "test@mail.com",
+        "telephone": "0602020202", "cotisation_payee": True,
+    })
+    membre_id = r.json()["id"]
 
-    client.post(
-        "/api/membres",
-        json={
-            "nom": "Test",
-            "prenom": "User",
-            "email": "test@mail.com",
-            "telephone": "0602020202",
-            "cotisation_payee": True,
-        },
-    )
-
-    response = client.get("/api/membres/0")
+    response = client.get(f"/api/membres/{membre_id}")
     assert response.status_code == 200
     assert response.json()["nom"] == "Test"
 
 
 def test_update_membre1():
 
-    client.post(
+    r = client.post(
         "/api/membres",
         json={
             "nom": "Old",
@@ -249,9 +232,10 @@ def test_update_membre1():
             "cotisation_payee": False,
         },
     )
+    membre_id = r.json()["id"]
 
     response = client.put(
-        "/api/membres/0",
+        f"/api/membres/{membre_id}",
         json={
             "nom": "New",
             "prenom": "Name",
@@ -266,7 +250,7 @@ def test_update_membre1():
 
 
 def test_delete_membre1():
-    client.post(
+    r = client.post(
         "/api/membres",
         json={
             "nom": "Delete",
@@ -276,12 +260,13 @@ def test_delete_membre1():
             "cotisation_payee": False,
         },
     )
+    membre_id = r.json()["id"]
 
-    response = client.delete("/api/membres/0")
+    response = client.delete(f"/api/membres/{membre_id}")
     assert response.status_code == 200
 
     # Vérifier qu'il n'existe plus
-    response = client.get("/api/membres/0")
+    response = client.get(f"/api/membres/{membre_id}")
     assert response.status_code == 404
 
 

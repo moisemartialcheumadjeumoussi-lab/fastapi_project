@@ -13,7 +13,8 @@ m = MembreCreate(
     telephone="96296869",
     cotisation_payee=False,
 )
-db.create_membre(m)
+d1 = db.create_membre(m)
+print(d1)
 
 b = db.get_all_membres()
 print(b)

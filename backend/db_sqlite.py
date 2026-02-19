@@ -14,6 +14,7 @@ class DatabaseSqlite:
         self.conn = sqlite3.connect("membres.db")
         self.conn.row_factory = sqlite3.Row
 
+
     # with self.conn permet de faire une transactions   https://www.bing.com/ck/a?!&&p=9d3352a9c16fff9eccf428167104aad132fdb852ba024db351c65312c034000eJmltdHM9MTc3MTM3MjgwMA&ptn=3&ver=2&hsh=4&fclid=1d48ab87-1db1-6619-07ce-bd711c8b67d5&psq=sqlite+begin+transaction&u=a1aHR0cHM6Ly93d3cuc3FsaXRldHV0b3JpYWwubmV0L3NxbGl0ZS10cmFuc2FjdGlvbi8
     def initialisation_de_la_db(self):
         with self.conn as conn:
@@ -70,7 +71,7 @@ class DatabaseSqlite:
                     date_inscription=row["date_inscription"],
                 )
                 l.append(m)
-            print(l)
+
 
         return l
 
@@ -112,7 +113,8 @@ class DatabaseSqlite:
             )
 
             conn.commit()
-        return self.get_all_membres()
+        c= self.get_all_membres()
+        return c[-1]
 
     def update_membre(self, membre_id: int, membre: MembreCreate) -> Optional[Membre]:
         with self.conn as conn:
@@ -163,7 +165,7 @@ class DatabaseSqlite:
 
             cursor.execute("""DELETE  FROM membres WHERE id = ?""", (membre_id,))
             conn.commit()
-        return self.get_all_membres()
+        return True
 
     def get_stats(self) -> dict:
         with self.conn as conn:
@@ -185,3 +187,9 @@ class DatabaseSqlite:
             "cotisations_payees": i,
             "cotisations_impayees": j,
         }
+    def test_clear_db(self):
+        with self.conn as conn:
+            conn.execute("DELETE FROM membres")
+            conn.execute("DELETE FROM sqlite_sequence WHERE name='membres'")
+            conn.commit()
+
