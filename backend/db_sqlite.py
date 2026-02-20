@@ -95,7 +95,8 @@ class DatabaseSqlite:
     def create_membre(self, membre: MembreCreate):
         with self.conn as conn:
             date_inscription = datetime.now()
-            conn.execute(
+            cursor = conn.cursor()
+            cursor.execute(
                 """
                          INSERT INTO membres (nom, prenom, email, telephone, cotisation_payee, date_inscription)
                          VALUES ( ?, ?, ?, ?, ?, ?)
@@ -111,8 +112,8 @@ class DatabaseSqlite:
             )
 
             conn.commit()
-        c = self.get_all_membres()
-        return c[-1]
+            a = cursor.lastrowid
+        return self.get_membre_by_id(a)
 
     def update_membre(self, membre_id: int, membre: MembreCreate) -> Optional[Membre]:
         with self.conn as conn:
@@ -143,7 +144,7 @@ class DatabaseSqlite:
             )
 
             conn.commit()
-        if cursor.rowcount==0:
+        if cursor.rowcount == 0:
             return None
         return self.get_membre_by_id(membre_id)
 
@@ -151,10 +152,10 @@ class DatabaseSqlite:
         with self.conn as conn:
             cursor = conn.cursor()
 
-            cursor.execute("SELECT * FROM membres WHERE id = ?", (membre_id,))
+            cursor.execute("DELETE FROM membres WHERE id = ?", (membre_id,))
+
             conn.commit()
         return cursor.rowcount > 0
-
 
     def get_stats(self) -> dict:
         with self.conn as conn:

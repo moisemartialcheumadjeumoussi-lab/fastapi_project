@@ -32,7 +32,8 @@ jobs:
     - name: Lancer les tests
       run: |
         cd backend 
-        pytest Test.py -v --cov=./
+        pytest Test_db.py Test_api.py -v --cov=./  
+        
 
     - name: Formatage black
       run: black backend --check --diff

@@ -30,13 +30,10 @@ def get_database():
     return db1
 
 
-
 @app.post("/api/membres", response_model=Membre)
 def creer_membre(membre: MembreCreate, db1: DatabaseSqlite = Depends(get_database)):
 
-    db1.create_membre(membre)
-    membres = db1.get_all_membres()
-    return membres[-1]
+    return db1.create_membre(membre)
 
 
 @app.get("/api/membres", response_model=List[Membre])
